@@ -11,10 +11,10 @@ GLOBAL_VARIABLES = {
 
 mydb = None
 try:
-  mydb = mysql.connector.connect(user='root',
-                                  host = '127.0.0.1',
-                                  password='root',
-                                  database ="customer_db")
+  mydb = mysql.connector.connect(user='b69ef2d19c87bd',
+                                  host = 'us-cdbr-east-02.cleardb.com',
+                                  password='eccef14b',
+                                  database = 'heroku_ca79b3aafa57097')
 except mysql.connector.Error as err:
   if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
     print("Something is wrong with your user name or password")
@@ -23,23 +23,35 @@ except mysql.connector.Error as err:
   else:
     print(err)
 
-
+'''
+(
+    "CREATE TABLE `users` ("
+    "  `user_id` int(11) NOT NULL AUTO_INCREMENT,"
+    "  `user_type` varchar(14) NOT NULL,"
+    "  PRIMARY KEY (`user_id`)"
+    ")"
+)
+'''
 app =  Flask (__name__)
 @app.route('/')
-
 def hello():
+  # my_cursor = mydb.cursor()
+  # user_details = ("talk11","123")
+  # query = 
+  # my_cursor.execute(query)
+  # mydb.commit()
   return "Hello World"
 
-@app.route('/signup-api/username=<string:username>&pwd=<string:password>')
-def signup(username,password):
+@app.route('/api/signup/username=<string:username>&pwd=<string:password>&user_type=<string:user_type>')
+def signup(username,password,user_type):
   my_cursor = mydb.cursor()
-  user_details = (username,password)
-  query = "INSERT INTO customers (username,password) VALUES (%s,%s)"
+  user_details = (username,password,user_type)
+  query = "INSERT INTO users(user_id,password,user_type) VALUES (%s,%s,%s)"
   my_cursor.execute(query,user_details)
   mydb.commit()
   return {"msg":"You have registered at our website!"}
 
-@app.route('/login-api/username=<string:username>&pwd=<string:password>')
+@app.route('/api/login/username=<string:username>&pwd=<string:password>')
 def login(username,password):
   my_cursor = mydb.cursor()
   query = "SELECT username,password FROM customers WHERE username = '%s' AND password = '%s'" % (username,password)
