@@ -1,25 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
 
+import logo from "./logo.svg";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import "./App.css";
+import Login from "./Components/Login.js";
+import Signup from "./Components/Signup.js";
+import Header from "./Components/Header.js";
+import Home from "./Components/Home.js";
+import Checkout from "./Components/Checkout.js";
+import { useStateValue } from "./Components/StateProvider.js";
+
+const backendAddr = "http://127.0.0.1:5000/";
 function App() {
+  const [{ basket }, dispatch] = useStateValue();
+  useEffect(() => {
+
+
+  }, [])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Switch>
+          <Route path="/checkout">
+            <Header></Header>
+            <Checkout></Checkout>
+          </Route>
+          <Route path="/login">
+            <Login></Login>
+          </Route>
+          <Route path="/signup">
+            <Signup></Signup>
+          </Route>
+          <Route path="/">
+            <Header></Header>
+            <Home />
+          </Route>
+        </Switch>
+      </div>
+    </Router>
   );
 }
 
