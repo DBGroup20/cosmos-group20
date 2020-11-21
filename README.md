@@ -1,10 +1,10 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-Instructions:
+<h1>Instructions:</h1>
 
-<h1>Clone the repo</h1>
-cd into cloned repo
-in cmd, write npm start
-cd api
-in cmd , type flask run
-Use Cases Implemented : Signup, Login , Update Cart
+<br>Clone the repo</br>
+<br>cd into cloned repo</br>
+<br>in cmd, write npm start</br>
+<br>cd api</br>
+<br>in cmd , type flask run</br>
+<br>Use Cases Implemented : Signup, Login , Update Cart</br>
