@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import cosmos_logo from "../Images/cosmos_logo.png";
 
 import { useStateValue } from "./StateProvider.js";
+const backendAddr = "https://cosmos-app-group20.herokuapp.com";
 
 function Signup() {
     const history = useHistory();
@@ -33,7 +34,7 @@ function Signup() {
         event.preventDefault(); //prevents refresh after submitting form
         // &contact=<string:contact>&address=<string:address>&email=<email:string></string>
         const signupAPI = "/api/signup/username=" + username + "&name=" + name + "&pwd=" + password + "&user_type=" + user_type + "&contact=" + contact + "&address=" + address + "&email=" + email + "&balance=" + "5000.0";
-
+        console.log(signupAPI);
 
         fetch(signupAPI)
             .then((response) => response.json())

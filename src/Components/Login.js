@@ -3,6 +3,7 @@ import { Link, useHistory } from 'react-router-dom';
 import cosmos_logo from "../Images/cosmos_logo.png";
 import { useStateValue } from "./StateProvider.js";
 import "./Login.css";
+const backendAddr = "https://cosmos-app-group20.herokuapp.com";
 
 function Login() {
   const history = useHistory();

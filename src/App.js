@@ -10,7 +10,7 @@ import Home from "./Components/Home.js";
 import Checkout from "./Components/Checkout.js";
 import { useStateValue } from "./Components/StateProvider.js";
 
-const backendAddr = "http://127.0.0.1:5000/";
+const backendAddr = "https://cosmos-app-group20.herokuapp.com";
 function App() {
   const [{ basket }, dispatch] = useStateValue();
   useEffect(() => {

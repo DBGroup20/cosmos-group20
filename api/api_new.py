@@ -1,12 +1,20 @@
 from flask import Flask
 import mysql.connector
 from mysql.connector import errorcode
+from flaskext.mysql import MySQL
 
+#config
+app = Flask(__name__)
+app.config['MYSQL_DATABASE_USER'] = 'b69ef2d19c87bd'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'eccef14b'
+app.config['MYSQL_DATABASE_DB'] = 'heroku_ca79b3aafa57097'
+app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-02.cleardb.com'
 
-GLOBAL_VARIABLES = {
-  "logged_in": False
-}
+#init MySQL
+mysql = MySQL()
+mysql.init_app(app)
 
+mydb = mysql.connect()
 '''
 mydb = None
 try:
@@ -21,7 +29,6 @@ except mysql.connector.Error as err:
     print("Database does not exist")
   else:
     print(err)
-'''
 mydb = None
 try:
   mydb = mysql.connector.connect(user='b69ef2d19c87bd',
@@ -35,7 +42,7 @@ except mysql.connector.Error as err:
     print("Database does not exist")
   else:
     print(err)
-
+'''
 app =  Flask (__name__)
 @app.route('/')
 def hello():
@@ -47,14 +54,19 @@ def signup(username,name,password,user_type,contact,address,email,balance):
   user_id = username
   user_details = (user_id,password,user_type)
   query1 = "INSERT INTO users(user_id,password,user_type) VALUES (%s,%s,%s)"
+  mydb.ping(reconnect=True)
   my_cursor.execute(query1,user_details)
   mydb.commit()
+  my_cursor.close()
   if user_type == "customer":
+    my_cursor = mydb.cursor()
     customer_id = user_id
     customer_details = (customer_id,user_id,email,contact,address,balance)
     query2 = "INSERT INTO customers(customer_id,user_id,email,contact_no,address,balance) VALUES (%s,%s,%s,%s,%s,%s)"
+    mydb.ping(reconnect=True)
     my_cursor.execute(query2,customer_details)
     mydb.commit()
+    my_cursor.close()
   return {"msg":"You have registered at our website!"}
 @app.route('/api/products/')
 def get_product():
@@ -66,8 +78,13 @@ def login(username,password,user_type):
   query = "SELECT user_id,password FROM users WHERE user_id = '%s' AND password = '%s'" % (username,password)
   print(query)
   status = "False"
+  mydb.ping(reconnect=True)
   my_cursor.execute(query)
+  my_cursor.close()
+  my_cursor = mydb.cursor()
+  mydb.ping(reconnect=True)
   db_user_details = my_cursor.fetchone()
+  my_cursor.close()
   print(db_user_details)
   if db_user_details is not None and db_user_details[0] == username and db_user_details[1] == password:
     status = "True"
