@@ -2,7 +2,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 Instructions:
 
-Clone the repo \n
+<h1>Clone the repo</h1>
 cd into cloned repo
 in cmd, write npm start
 cd api
