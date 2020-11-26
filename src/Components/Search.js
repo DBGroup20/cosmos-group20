@@ -1,0 +1,1 @@
+proudcts = fetch('/api/searchbyprice')

@@ -7,6 +7,7 @@ import Login from "./Components/Login.js";
 import Signup from "./Components/Signup.js";
 import Header from "./Components/Header.js";
 import Home from "./Components/Home.js";
+import Payment from "./Components/Payment.js";
 import Checkout from "./Components/Checkout.js";
 import { useStateValue } from "./Components/StateProvider.js";
 
@@ -30,6 +31,10 @@ function App() {
           </Route>
           <Route path="/signup">
             <Signup></Signup>
+          </Route>
+          <Route path="/payment">
+            <Header></Header>
+            <Payment></Payment>
           </Route>
           <Route path="/">
             <Header></Header>

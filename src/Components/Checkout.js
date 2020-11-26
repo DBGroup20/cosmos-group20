@@ -1,13 +1,14 @@
 import React from 'react';
 import { useStateValue } from "./StateProvider.js";
 import CheckoutProduct from "./CheckoutProduct.js";
+import { Link, useHistory } from 'react-router-dom';
 
 import Subtotal from "./Subtotal.js";
 import "./Checkout.css";
 
 function Checkout() {
     const [{ basket }] = useStateValue();
-
+    const history = useHistory();
 
     return (
         <div className="checkout">

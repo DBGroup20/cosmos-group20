@@ -37,13 +37,14 @@ function Signup() {
         console.log(signupAPI);
 
         fetch(signupAPI)
-            .then((response) => response.json())
+            .then((response) => response)
             .then((data) => {
                 setStatus(data);
                 console.log("you have signed up bro");
                 history.push('/');
                 dispatch(
                     {
+                        type: 'SET_USER',
                         user: {
                             'username': username,
                             'name': name,

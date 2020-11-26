@@ -17,13 +17,38 @@ function Login() {
     event.preventDefault();
 
     const loginAPI = "/api/login/username=" + username + "&pwd=" + password + "&user_type=" + user_type;
+    console.log(loginAPI);
     fetch(loginAPI)
-      .then((response) => response.json())
+      .then((response => response.json()))
       .then(
         (data) => {
-          setStatus(data)
-          console.log("loggged in", data);
-          history.push('/');
+          setStatus(data['status'])
+          console.log("dat in", data);
+
+          if (data['status'] == "True") {
+            history.push('/');
+            console.log("loggged in", data);
+          }
+          else {
+            alert("invalid credentials");
+          }
+
+
+          dispatch(
+            {
+              type: 'SET_USER',
+              user: {
+                'username': username,
+                'name': "",
+                'user_type': user_type,
+                'password': password,
+                'email': "",
+                'address': "",
+                'contact': "",
+                'balance': 5000
+              }
+            }
+          )
 
 
         }
@@ -41,7 +66,7 @@ function Login() {
     fetch(signupAPI)
       .then((response) => response.json())
       .then((data) => setStatus(data));
-    history.push('/');
+
   };
   return (
     <div className="login">
@@ -81,7 +106,7 @@ function Login() {
         <Link to="/signup">
           <button>Create an Account</button>
         </Link>
-        <h1>Logged In status: {status.login_status}</h1>
+        <h1>Logged In status: {status}</h1>
       </div>
 
     </div>
