@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import cosmos_logo from "../Images/cosmos_logo.png";
 import SearchIcon from "@material-ui/icons/Search";
 import ShoppingBasketIcon from "@material-ui/icons/ShoppingBasket";
+import { getBasketTotal, getBasketItemsTotal } from './reducer.js';
+
 import { useStateValue } from "./StateProvider.js";
 const amazon_logo = "http://pngimg.com/uploads/amazon/amazon_PNG11.png";
 function Header() {
@@ -22,12 +24,22 @@ function Header() {
         <SearchIcon className="header__searchicon"></SearchIcon>
       </div>
       <div className="header__nav">
-        <Link to="/login" className="header__link">
-          <div className="header__option">
-            <span className="header__option__line1">Hello {user?.name}</span>
-            <span className="header__option__line2"> Sign In</span>
-          </div>
-        </Link>
+        {
+          user?.username ? (
+            <Link to="/signout" className="header__link">
+              <div className="header__option">
+                <span className="header__option__line1">Hello {user?.username}</span>
+                <span className="header__option__line2"> Sign Out</span>
+              </div>
+            </Link>) : (
+              <Link to="/login" className="header__link">
+                <div className="header__option">
+                  <span className="header__option__line1">Hello Guest</span>
+                  <span className="header__option__line2"> Sign In</span>
+                </div>
+              </Link>
+            )
+        }
         <Link to="/" className="header__link">
           <div className="header__option">
             <span className="header__option__line1">Returns</span>
@@ -44,7 +56,10 @@ function Header() {
           <div className="header__option__basket">
             <ShoppingBasketIcon></ShoppingBasketIcon>
             <span className="header__option__line2 header__option__basketcount">
-              {basket?.length}
+              {
+
+                getBasketItemsTotal(basket)
+              }
             </span>
           </div>
         </Link>

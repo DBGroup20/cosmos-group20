@@ -19,13 +19,13 @@ CREATE TABLE IF NOT EXISTS users (
 	password text DEFAULT '' not null,
     user_type text DEFAULT '' not null
 ) ;""")
-print("done1")
+print("done creating users")
 conn.commit()
 c.execute("""
 CREATE TABLE IF NOT EXISTS customers (
     customer_id text PRIMARY KEY,
 	user_id text,
-    names text  not null,
+    name text  not null,
     email text DEFAULT '' not null,
     address text DEFAULT '' not null,
     contact_no text DEFAULT '' not null,
@@ -33,15 +33,15 @@ CREATE TABLE IF NOT EXISTS customers (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ;""")
 conn.commit()
-print("done1")
+print("done creating customers")
 
 
 c.execute("""CREATE TABLE IF NOT EXISTS brand (
 brand_id int PRIMARY KEY,
-names text DEFAULT '' not null
+name text DEFAULT '' not null
 );""")
 conn.commit()
-print("done1")
+print("done creating brand")
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS product (
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS product (
 image blob,
  FOREIGN KEY (brand_id) REFERENCES brand(brand_id) 
 ) ;""")
-print("done1")
+print("done creating product")
 
 conn.commit()
 c.execute("""CREATE TABLE IF NOT EXISTS cart (
@@ -67,10 +67,73 @@ c.execute("""CREATE TABLE IF NOT EXISTS cart (
     
 ) ;""")
 conn.commit()
-print("done1")
+print("done creating cart")
+
+c.execute( """
+ CREATE TABLE IF NOT EXISTS orders (
+    order_id int  PRIMARY KEY,
+    customer_id text not null,
+    cart_id int not null,
+    product_id int not null,
+    status text DEFAULT 'processing' not null,
+    created datetime ,
+    status_modified datetime ,
+    total REAL DEFAULT 0.0 not null,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES product(product_id),
+    FOREIGN KEY (cart_id) REFERENCES cart(cart_id)
+    );
+"""
+)
+
+conn.commit()
+
+print("done creating orders")
+c.execute("""
+CREATE TABLE IF NOT EXISTS retailers (
+  retailer_id int  PRIMARY KEY,
+	brand_id int,
+  contact_no text DEFAULT '' not null,
+  name text DEFAULT '' not null
+    );
+""")
+conn.commit()
+print("done creating retailers")
+c.execute("""
+CREATE TABLE IF NOT EXISTS location (
+  location_id int PRIMARY KEY,
+  inventory_id int ,
+  address text DEFAULT '' not null,
+  FOREIGN KEY (inventory_id) REFERENCES inventory(inventory_id)
+    );
+""")
+conn.commit()
+print("done creating location")
+c.execute("""
+CREATE TABLE IF NOT EXISTS inventory (
+    inventory_id int  PRIMARY KEY,
+	location_id int,
+  retailer_id int,
+  FOREIGN KEY (location_id) REFERENCES location(location_id),
+    FOREIGN KEY (retailer_id) REFERENCES retailers(retailer_id)
+
+    );
+""")
+conn.commit()
+print("done creating inventory")
+c.execute("""
+CREATE TABLE IF NOT EXISTS invoice (
+  invoice_id int  PRIMARY KEY,
+	customer_id int,
+  order_id int,
+  FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+
+    );
+""")
+print("done creating invoice")
+conn.commit()
 conn.close()
-
-
 @app.route('/')
 def hello():
   return "Hello World"
@@ -85,14 +148,14 @@ def signup(username,name,password,user_type,contact,address,email,balance):
   print(query1)
   c.execute(query1,user_details)
   conn.commit()
-  c.execute("select * from customers")
+  c.execute("select * from users")
   users = c.fetchall()
   print(users)
   print("inserted query 1")
   if user_type == "customer":
     customer_id = user_id
     customer_details = (customer_id,user_id,name,email,contact,address,balance)
-    query2 = "INSERT OR REPLACE INTO customers(customer_id,user_id,names,email,contact_no,address,balance) VALUES (?,?,?,?,?,?,?)" 
+    query2 = "INSERT OR REPLACE INTO customers(customer_id,user_id,name,email,contact_no,address,balance) VALUES (?,?,?,?,?,?,?)" 
     c.execute(query2,customer_details)
     conn.commit()
     c.execute("select * from customers")
@@ -121,10 +184,7 @@ def login(username,password,user_type):
 
   return jsonify(status=log_status)
 
-# /api/add2cart/cart_id=1&cid=dummy&pid=3&price=1500&quantity=1
-@app.route('/api/add')
-def add():
-  return "bro wassup"
+
 @app.route('/api/add2cart/cart_id=<int:cart_id>&cid=<string:customer_id>&pid=<int:product_id>&price=<float:price>&quantity=<int:quantity>')
 def add2cart(cart_id,customer_id,product_id,price,quantity):
   conn = get_db()
@@ -132,16 +192,34 @@ def add2cart(cart_id,customer_id,product_id,price,quantity):
   import datetime
   tup = (cart_id,customer_id,product_id,quantity,price)
   print('add2cart',tup)
-  added = datetime.datetime.now()
-  last_modified = datetime.datetime.now()
   query  = "INSERT OR REPLACE INTO cart(cart_id,customer_id,product_id,quantity,price) VALUES (?,?,?,?,?)"
   c.execute(query,tup)
   conn.commit()
-  print("added:",type(added))
+  c.execute("select * from cart")
+  cart_items = c.fetchall()
+  print('cart-items',cart_items)
+  conn.commit()
   conn.close()
   return "added to cart"
-@app.route('/api/place-order')
-def place_order():
+@app.route('/api/place_order/order_id=<int:order_id>&cart_id=<int:cart_id>&cid=<string:customer_id>&pid=<int:product_id>&price=<float:price>&quantity=<int:quantity>&total=<float:total>')
+def place_order(order_id,cart_id,customer_id,product_id,price,quantity,total):
+  conn = get_db()
+  c = conn.cursor()
+  import datetime
+  created = datetime.datetime.now()
+  status_modified = datetime.datetime.now()
+  status = 'placed'
+  tup = (order_id,cart_id,customer_id,product_id,status,created,status_modified,total)
+  print('place_order',tup)
+  query  = "INSERT OR REPLACE INTO orders(order_id,cart_id,customer_id,product_id,status,created,status_modified,total) VALUES (?,?,?,?,?,?,?,?)"
+  c.execute(query,tup)
+  conn.commit()
+  c.execute("select * from orders")
+  order_items = c.fetchall()
+  print('order-items',order_items)
+  conn.commit()
+  conn.close()
+  
   return "order_placed"
 
 

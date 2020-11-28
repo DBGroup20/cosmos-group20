@@ -16,21 +16,21 @@ function Home() {
         <Product
           id="1"
           name="Perfume"
-          price={2100}
+          price={2100.5}
           stock={4}
           image="https://images-na.ssl-images-amazon.com/images/I/41wI53OEpCL._SX332_BO1,204,203,200_.jpg"
         ></Product>
         <Product
           id="2"
           name="Lipstick"
-          price={1000}
+          price={1000.1}
           stock={4}
           image={lipStick}
         ></Product>
         <Product
           id="3"
           name="Makeup"
-          price={1500}
+          price={1500.2}
           stock={4}
           image={makeUp}
         ></Product>
@@ -39,14 +39,14 @@ function Home() {
         <Product
           id="4"
           name="Facewash"
-          price={700}
+          price={700.50}
           stock={4}
           image="https://images-na.ssl-images-amazon.com/images/I/41wI53OEpCL._SX332_BO1,204,203,200_.jpg"
         ></Product>
         <Product
           id="5"
           name="Foundation"
-          price={2000}
+          price={2000.20}
           stock={4}
           image="https://images-na.ssl-images-amazon.com/images/I/41wI53OEpCL._SX332_BO1,204,203,200_.jpg"
         ></Product>
@@ -55,7 +55,7 @@ function Home() {
         <Product
           id="6"
           name="Nail Polish"
-          price={500}
+          price={500.25}
           stock={4}
           image="https://images-na.ssl-images-amazon.com/images/I/41wI53OEpCL._SX332_BO1,204,203,200_.jpg"
         ></Product>

@@ -35,6 +35,7 @@ function Checkout() {
                                         name={item.name}
                                         image={item.image}
                                         price={item.price}
+                                        disabled={false}
                                         quantity={item.quantity}
                                         stock={item.stock}
                                         brand_id={item.brand_id} />
