@@ -45,7 +45,7 @@ function Login() {
                 'email': user?.email,
                 'address': user?.address,
                 'contact': user?.contact,
-                'balance': 5000
+                'balance': 10000
               }
             }
           )

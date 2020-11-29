@@ -6,7 +6,7 @@ export const initialState = {
     order_ids: [],
     cart_ids: [],
     products: [],
-    search_query: "",
+    search_query: { "query": "", "price": -1.0, "type": "name" },
     product_ids: [],
     product_quantity: [],
     product_price: [],

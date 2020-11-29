@@ -55,6 +55,7 @@ function Home() {
                   name={item.name}
                   price={item.price}
                   brand_id={item.brand_id}
+                  brand_name={item.brand_name}
                   stock={item.stock}
                   image={productImage}
                 ></Product>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Product.css";
 import { useStateValue } from "./StateProvider.js";
 
-function Product({ id, name, image, price, stock, brand_id }) {
+function Product({ id, name, image, price, stock, brand_id, brand_name }) {
   const [{ basket }, dispatch] = useStateValue();
   const [quantity, setQuantity] = useState(1);
 
@@ -20,7 +20,8 @@ function Product({ id, name, image, price, stock, brand_id }) {
           price: price,
           quantity: quantity,
           stock: stock,
-          brand_id: brand_id
+          brand_id: brand_id,
+          brand_name: brand_name,
         }
       }
     )
@@ -32,7 +33,7 @@ function Product({ id, name, image, price, stock, brand_id }) {
     <div className="product">
       <div className="product__info">
         <p className="product__title">{name}</p>
-        <p className="product__brand">Brand id : {brand_id}</p>
+        <p className="product__brand">by {brand_name}</p>
         <p className="product__price">
           <small>Rs</small>
           <strong>{price}</strong>
