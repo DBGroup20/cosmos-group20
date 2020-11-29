@@ -32,11 +32,13 @@ function Product({ id, name, image, price, stock, brand_id }) {
     <div className="product">
       <div className="product__info">
         <p className="product__title">{name}</p>
-        <p className="product__brand">Brand : {brand_id}</p>
+        <p className="product__brand">Brand id : {brand_id}</p>
         <p className="product__price">
           <small>Rs</small>
           <strong>{price}</strong>
         </p>
+        <p className="product__id">Product id :{id}</p>
+
 
       </div>
 

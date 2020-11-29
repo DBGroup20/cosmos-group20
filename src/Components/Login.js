@@ -39,12 +39,12 @@ function Login() {
               type: 'SET_USER',
               user: {
                 'username': username,
-                'name': "",
+                'name': user?.name,
                 'user_type': user_type,
                 'password': password,
-                'email': "",
-                'address': "",
-                'contact': "",
+                'email': user?.email,
+                'address': user?.address,
+                'contact': user?.contact,
                 'balance': 5000
               }
             }

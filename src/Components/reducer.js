@@ -1,6 +1,15 @@
 export const initialState = {
     basket: [],
     orders: [],
+    order_status: [],
+    totals: 0.0,
+    order_ids: [],
+    cart_ids: [],
+    products: [],
+    search_query: "",
+    product_ids: [],
+    product_quantity: [],
+    product_price: [],
     user: null
 
 };
@@ -13,6 +22,16 @@ function reducer(state, action) {
 
     console.log(action);
     switch (action.type) {
+        case 'SET_SEARCH_QUERY':
+            return { ...state, search_query: action.search_query }
+            break
+
+        case 'ADD_PRODUCTS':
+            return { ...state, products: action.products }
+            break
+        case 'REMOVE_PRODUCTS':
+            return { ...state, products: action.products }
+            break
         case 'ADD_TO_BASKET':
             let copy_basket = [...state.basket];
             const old_index = state.basket.findIndex((basketItem) => basketItem.id === action.item.id)
@@ -47,7 +66,21 @@ function reducer(state, action) {
         case 'PLACE_ORDER':
             return {
                 ...state,
-                orders: [...state.orders, action.order]
+                orders: [...state.orders, action.order],
+                cart_ids: action.cart_ids,
+                order_ids: action.order_ids,
+                product_ids: action.product_ids,
+                product_price: action.product_price,
+                product_quantity: action.product_quantity,
+                order_status: action.order_status,
+                total: action.total
+
+
+            }
+        case 'MAKE_PAYMENT':
+            return {
+                ...state,
+                user: action.user
             }
         case 'CLEAR_BASKET':
             return { ...state, basket: [] }

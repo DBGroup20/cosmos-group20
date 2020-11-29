@@ -1,5 +1,6 @@
 from flask import Flask
 import sqlite3
+import json
 from flask import g
 from flask import jsonify
 import os
@@ -46,12 +47,12 @@ print("done creating brand")
 c.execute("""
 CREATE TABLE IF NOT EXISTS product (
     product_id int  PRIMARY KEY,
-	brand_id int,
-	name text DEFAULT '' not null,
+	  brand_id int,
+	  name text DEFAULT '' not null,
     stock int DEFAULT 0 not null,
     price REAL DEFAULT 0.0 not null,
-image blob,
- FOREIGN KEY (brand_id) REFERENCES brand(brand_id) 
+    image blob,
+    FOREIGN KEY (brand_id) REFERENCES brand(brand_id) 
 ) ;""")
 print("done creating product")
 
@@ -132,8 +133,37 @@ CREATE TABLE IF NOT EXISTS invoice (
     );
 """)
 print("done creating invoice")
+print("inserting products and brands")
 conn.commit()
+c.execute("""INSERT OR REPLACE INTO brand(brand_id, name) values('0','oriflame');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO brand(brand_id, name) values('1','mac');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO brand(brand_id, name) values('2','loreal');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('0',(SELECT brand_id from brand WHERE brand_id='0'),'foundation ','10','1000');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('1',(SELECT brand_id from brand WHERE brand_id='0'),'blush ','10','2000');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('2',(SELECT brand_id from brand WHERE brand_id='0'),'lipstick ','10','3000');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('3',(SELECT brand_id from brand WHERE brand_id='1'),'nailpolish ','10','500');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('4',(SELECT brand_id from brand WHERE brand_id='1'),'blush ','10','4000');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('5',(SELECT brand_id from brand WHERE brand_id='1'),'lipstick ','10','3000');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('6',(SELECT brand_id from brand WHERE brand_id='2'),'nailpolish ','10','1000');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('7',(SELECT brand_id from brand WHERE brand_id='2'),'foundation ','10','4500');""")
+conn.commit()
+c.execute("""INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values('8',(SELECT brand_id from brand WHERE brand_id='2'),'lipstick ','10','3000');""")
+conn.commit()
+
+
 conn.close()
+print("inserted products and brands")
+
 @app.route('/')
 def hello():
   return "Hello World"
@@ -166,7 +196,95 @@ def signup(username,name,password,user_type,contact,address,email,balance):
   conn.close()
   return "You have registered at our website!"
 
+@app.route('/api/products')
+def search_product():
+  conn = get_db()
+  c = conn.cursor()
+  c.execute("select * from product")
+  products = c.fetchall()
+  print(products)
+  p=[]
+  #product_id,brand_id,name,stock,price,image
+  for i in range(len(products)):
+    product = { "product_id": products[i][0],"brand_id":products[i][1],"name":products[i][2],"stock":products[i][3],"price":products[i][4],"image":products[i][5]}
+    p.append(product)   
+  all_products = json.dumps(p) 
+  print("All products")
+  conn.commit()
+  conn.close()
 
+  return all_products
+@app.route('/api/ascendingprices')
+def ascendingprices():
+  conn = get_db()
+  c = conn.cursor()
+  c.execute("Select * from product order by price ASC;")
+  rows = c.fetchall()
+  print(rows)
+  products = []
+  for row in rows:
+    product = { "product_id": row[0],"brand_id":row[1],"name":row[2],"stock":row[3],"price":row[4],"image":row[5]}
+    products.append(product)   
+  all_products = json.dumps(products)  
+   
+  print(all_products)
+  conn.commit()
+  conn.close()
+  print("ascending")
+  return all_products
+@app.route('/api/descendingprices')
+def descendingprices():
+  conn = get_db()
+  c = conn.cursor()
+  c.execute("Select * from product order by price DESC;")
+  rows = c.fetchall()
+  print(rows)
+  products = []
+  for row in rows:
+    product = { "product_id": row[0],"brand_id":row[1],"name":row[2],"stock":row[3],"price":row[4],"image":row[5]}
+    products.append(product)   
+  all_products = json.dumps(products)  
+   
+  print(all_products)
+  conn.commit()
+  conn.close()
+  print("descending")
+  return all_products  
+@app.route('/api/searchbyname/name=<string:name>')
+def searchbyname(name):
+  #{ "product_id": row[0],"brand_id":row[1],"name":row[2],"stock":row[3],"price":row[4],"image":row[5]}
+  conn = get_db()
+  c = conn.cursor()
+  query = "SELECT * FROM product WHERE name = ?"
+  c.execute(query,(name,))
+  rows = c.fetchall()
+  conn.commit()
+  products = []
+  for row in rows:
+    product = { "product_id": row[0],"brand_id":row[1],"name":row[2],"stock":row[3],"price":row[4],"image":row[5]}
+    products.append(product)   
+  all_products = json.dumps(products)    
+  print("All products")
+  conn.close()  
+  return all_products  
+ 
+
+@app.route('/api/searchbybrand/name=<string:name>')
+def searchbybrand(name):
+  conn = get_db()
+  c = conn.cursor()
+  query = "SELECT * FROM brand WHERE name = ?"
+  c.execute(query,(name,))
+  rows = c.fetchall()
+  conn.commit()
+  products = []
+  for row in rows:
+    product = { "brand_id": row[0],"name":row[1]}
+    products.append(product)   
+  all_products = json.dumps(products)    
+  print("All products")
+  conn.close()  
+  return all_products  
 @app.route('/api/login/username=<string:username>&pwd=<string:password>&user_type<string:user_type>')
 def login(username,password,user_type):
   conn = get_db()
@@ -187,6 +305,8 @@ def login(username,password,user_type):
 
 @app.route('/api/add2cart/cart_id=<int:cart_id>&cid=<string:customer_id>&pid=<int:product_id>&price=<float:price>&quantity=<int:quantity>')
 def add2cart(cart_id,customer_id,product_id,price,quantity):
+  if cart_id ==None or customer_id == None or product_id == None or price == None or quantity==None:
+    return "could not insert to cart for unlogged user"
   conn = get_db()
   c = conn.cursor()
   import datetime
@@ -200,6 +320,7 @@ def add2cart(cart_id,customer_id,product_id,price,quantity):
   print('cart-items',cart_items)
   conn.commit()
   conn.close()
+  print("added to cart")
   return "added to cart"
 @app.route('/api/place_order/order_id=<int:order_id>&cart_id=<int:cart_id>&cid=<string:customer_id>&pid=<int:product_id>&price=<float:price>&quantity=<int:quantity>&total=<float:total>')
 def place_order(order_id,cart_id,customer_id,product_id,price,quantity,total):
@@ -219,8 +340,20 @@ def place_order(order_id,cart_id,customer_id,product_id,price,quantity,total):
   print('order-items',order_items)
   conn.commit()
   conn.close()
-  
+  print("order placed")
   return "order_placed"
+@app.route('/api/payment/balance=<float:balance>&bill=<float:bill>')
+def make_payment(balance,bill):
+  conn = get_db()
+  c = conn.cursor()
+  if balance > bill:
+    status = "paid"
+  print("payment made")
+  return "payment made"
+
+
+
+
 
 
 

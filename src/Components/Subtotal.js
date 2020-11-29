@@ -12,7 +12,7 @@ function Subtotal() {
 
         //    '/api/add2cart/cid=<int:cart_id>&pid=<int:product_id>&price=<float:price>&quantity=<int:quantity>'
         basket.map((item, i) => {
-            const cartAPI = "/api/add2cart/cart_id=" + i.toString() + "&cid=" + user.username + "&pid=" + item.id + "&price=" + item.price + "&quantity=" + item.quantity;
+            const cartAPI = "/api/add2cart/cart_id=" + i.toString() + "&cid=" + user?.username + "&pid=" + item.id + "&price=" + item.price + "&quantity=" + item.quantity;
             console.log(cartAPI);
             fetch(cartAPI)
                 .then((response) => response)
@@ -23,7 +23,7 @@ function Subtotal() {
                     })
         })
 
-        history.push('/payment');
+        history.push('/order');
 
 
 
