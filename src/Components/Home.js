@@ -39,15 +39,15 @@ function Home() {
   return (
     <div className="home">
       <img src={banner} className="home__banner"></img>
-      <div className="home__row">
 
-        {
-          products?.length == 0 ? (
-            <p>Sorry we have no products available</p>
 
-          ) : (
-              products?.map((item, i) => (
+      {
+        products?.length == 0 ? (
+          <p>Sorry we have no products available</p>
 
+        ) : (
+            products?.map((item, i) => (
+              <div className="home__row">
 
                 <Product
                   key={i}
@@ -58,19 +58,21 @@ function Home() {
                   brand_name={item.brand_name}
                   stock={item.stock}
                   image={productImage}
+                  button_type={"Add to basket"}
                 ></Product>
+              </div>
 
 
 
 
 
-              ))
+            ))
 
-            )
+          )
 
 
-        }
-      </div>
+      }
+
     </div>
   );
 }

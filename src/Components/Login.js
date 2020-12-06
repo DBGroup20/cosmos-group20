@@ -25,8 +25,16 @@ function Login() {
           setStatus(data['status'])
           console.log("dat in", data);
 
-          if (data['status'] == "True") {
-            history.push('/');
+          if (data['status'] === "True") {
+            if (user_type === "customer") {
+              history.push('/');
+            }
+            if (user_type === "admin") {
+              history.push('/admin-home');
+            }
+
+
+
             console.log("loggged in", data);
           }
           else {
@@ -96,7 +104,7 @@ function Login() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            type="text"
+
           ></input>
           <button onClick={login} type="submit">
             Sign In

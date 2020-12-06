@@ -1,22 +1,25 @@
 import React from 'react'
 import { getBasketItemsTotal } from './reducer';
 import { useStateValue } from "./StateProvider.js";
-function OrderStatusItem({ order_id, id, price, quantity, cart_id, status, total }) {
+import "./Home.css";
+
+function OrderStatusItem({ order_id, product_id, customer_id, price, quantity, cart_id, status, total }) {
 
     const [{ basket, user, orders }, dispatch] = useStateValue();
     return (
-        <div>
+        <div className="home__col" >
             <table>
                 <thead>
                     <tr>
                         <th>Order # </th>
+                        <th>Customer_id</th>
                         <th>Cart_id</th>
                         <th>Product_id</th>
                         <th>Price</th>
                         <th>Quantity</th>
 
                         <th>Status</th>
-                        <th>Item Total</th>
+
 
 
 
@@ -25,20 +28,23 @@ function OrderStatusItem({ order_id, id, price, quantity, cart_id, status, total
                 <tbody>
                     <tr>
 
-                        <td>{orders?.length}</td>
+                        <td>{order_id}</td>
+                        <td>{customer_id}</td>
                         <td>{cart_id}</td>
-                        <td>{id}</td>
+
+
+                        <td>{product_id}</td>
                         <td>{price}</td>
                         <td>{quantity}</td>
 
                         <td>{status}</td>
-                        <td>{price * quantity}</td>
+
                     </tr>
                 </tbody>
 
 
             </table>
-        </div>
+        </div >
     )
 }
 

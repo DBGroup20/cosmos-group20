@@ -1,12 +1,12 @@
 import React from 'react';
 import { useStateValue } from "./StateProvider.js";
-import CheckoutProduct from "./CheckoutProduct.js";
+import InventoryProduct from "./InventoryProduct.js";
 import { Link, useHistory } from 'react-router-dom';
 
 import Subtotal from "./Subtotal.js";
 import "./Checkout.css";
 
-function Checkout() {
+function AdminCheckout() {
     const [{ basket }] = useStateValue();
     const history = useHistory();
 
@@ -16,20 +16,20 @@ function Checkout() {
 
                 {basket?.length === 0 ? (
                     <div>
-                        <h2>Shopping Cart is Empty</h2>
+                        <h2>Inventory Cart is Empty</h2>
                         <img className="checkout__ad" src="https://m.media-amazon.com/images/G/01/cart/empty/kettle-desaturated._CB445243794_.svg" ></img>
                     </div>
                 ) :
                     (
                         <div>
-                            <h2>Shopping Cart is Not Empty</h2>
+                            <h2>Inventory Cart is Not Empty</h2>
                             <img className="checkout__ad" src="https://m.media-amazon.com/images/G/01/cart/empty/kettle-desaturated._CB445243794_.svg" ></img>
                             {
 
                                 basket.map((item, i) => (
 
 
-                                    <CheckoutProduct
+                                    <InventoryProduct
                                         key={i}
                                         id={item.id}
                                         name={item.name}
@@ -50,7 +50,7 @@ function Checkout() {
             </div>
             {basket.length > 0 && (
                 <div className="checkout__right">
-                    <Subtotal user_type={"customer"} />
+                    <Subtotal user_type={"admin"} />
                 </div>
 
             )}
@@ -59,4 +59,4 @@ function Checkout() {
     )
 }
 
-export default Checkout
+export default AdminCheckout

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { useStateValue } from "./StateProvider.js";
 import "./CheckoutProduct.css";
-
-
-function CheckoutProduct({ id, name, image, price, stock, disabled, brand_id, quantity, button_type }) {
+function InventoryProduct({ id, name, image, price, stock, disabled, brand_id, quantity, button_type }) {
     const [{ basket }, dispatch] = useStateValue();
     const [removeDisabled, setRemoveDisabled] = useState(disabled);
-    const removeFromBasket = () => {
+    const removeFromInventory = () => {
         dispatch(
             {
                 type: 'REMOVE_FROM_BASKET',
@@ -28,7 +26,7 @@ function CheckoutProduct({ id, name, image, price, stock, disabled, brand_id, qu
                     Quantity: {quantity}
 
                 </p>
-                <button disabled={removeDisabled} className="checkoutProduct__removeButton" onClick={removeFromBasket} >Remove from basket</button>
+                <button disabled={removeDisabled} className="checkoutProduct__removeButton" onClick={removeFromInventory} >Remove from inventory</button>
 
             </div>
 
@@ -36,4 +34,5 @@ function CheckoutProduct({ id, name, image, price, stock, disabled, brand_id, qu
     )
 }
 
-export default CheckoutProduct
+
+export default InventoryProduct

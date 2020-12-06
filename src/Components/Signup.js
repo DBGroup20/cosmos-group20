@@ -12,7 +12,8 @@ function Signup() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [contact, setContact] = useState("");
-    const [address, setAddress] = useState("");
+    const [role, setRole] = useState("role");
+    const [address, setAddress] = useState("address");
     const [password, setPassword] = useState("");
     const [user_type, setUserType] = useState("");
     const [status, setStatus] = useState("");
@@ -32,8 +33,23 @@ function Signup() {
              .then(data => this.setState({ postId: data.id }));
      }*/
         event.preventDefault(); //prevents refresh after submitting form
-        // &contact=<string:contact>&address=<string:address>&email=<email:string></string>
-        const signupAPI = "/api/signup/username=" + username + "&name=" + name + "&pwd=" + password + "&user_type=" + user_type + "&contact=" + contact + "&address=" + address + "&email=" + email + "&balance=" + "5000.0";
+        var roleAd = "";
+        var addressAd = "";
+        if (role.length === 0) {
+            roleAd = "role";
+
+        }
+        else {
+            roleAd = role;
+        }
+        if (address.length === 0) {
+            addressAd = "address";
+
+        }
+        else {
+            addressAd = address;
+        }
+        const signupAPI = "/api/signup/username=" + username + "&name=" + name + "&pwd=" + password + "&user_type=" + user_type + "&role=" + roleAd + "&contact=" + contact + "&address=" + addressAd + "&email=" + email + "&balance=" + "5000";
         console.log(signupAPI);
 
         fetch(signupAPI)
@@ -41,7 +57,13 @@ function Signup() {
             .then((data) => {
                 setStatus(data);
                 console.log("you have signed up bro");
-                history.push('/');
+                if (user_type === "customer") {
+                    history.push('/');
+                }
+                if (user_type === "admin") {
+                    history.push("/admin-home");
+                }
+
                 dispatch(
                     {
                         type: 'SET_USER',
@@ -51,6 +73,7 @@ function Signup() {
                             'user_type': user_type,
                             'password': password,
                             'email': email,
+                            'role': role,
                             'address': address,
                             'contact': contact,
                             'balance': 5000
@@ -104,9 +127,15 @@ function Signup() {
                         type="password"
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
+
+                    ></input>
+                    <h5>Role (blank if customer)</h5>
+                    <input
+                        value={role}
+                        onChange={(event) => setRole(event.target.value)}
                         type="text"
                     ></input>
-                    <h5>Address</h5>
+                    <h5>Address(blank if admin)</h5>
                     <input
                         value={address}
                         onChange={(event) => setAddress(event.target.value)}

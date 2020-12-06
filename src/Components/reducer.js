@@ -6,7 +6,8 @@ export const initialState = {
     order_ids: [],
     cart_ids: [],
     products: [],
-    search_query: { "query": "", "price": -1.0, "type": "name" },
+    inventory: [],
+    search_query: { "query": "", "price": "is not selected", "type": "name" },
     product_ids: [],
     product_quantity: [],
     product_price: [],
@@ -44,13 +45,14 @@ function reducer(state, action) {
                 basket: [...state.basket, action.item]
             }
             break;
+
         case 'REMOVE_FROM_BASKET':
             let new_basket = [...state.basket];
             const index = state.basket.findIndex((basketItem) => basketItem.id === action.id)
             if (index >= 0) {
 
                 new_basket[index].quantity = new_basket[index].quantity - 1;
-                if (new_basket[index].quantity == 0) {
+                if (new_basket[index].quantity === 0) {
                     new_basket.splice(index, 1);
                 }
             }
@@ -59,6 +61,7 @@ function reducer(state, action) {
             }
             return { ...state, basket: new_basket }
             break
+
         case 'SET_USER':
 
             return { ...state, user: action.user }

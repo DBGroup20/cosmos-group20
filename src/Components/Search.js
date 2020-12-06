@@ -6,17 +6,17 @@ import Product from "./Product";
 
 
 
-function Search() {
+function Search({ button_type }) {
     const [{ search_query, user, orders }, dispatch] = useStateValue();
     const [filteredProducts, setProduct] = useState([]);
 
     useEffect(() => {
         var productsAPI = "/api/searchbyname/name=";
-        if (search_query["type"] == "name") {
+        if (search_query["type"] === "name") {
             productsAPI = "/api/searchbyname/name=" + search_query["query"];
 
         }
-        else if (search_query["type"] == "price") {
+        else if (search_query["type"] === "price") {
             productsAPI = "/api/ascendingprices/name=" + search_query["query"] + "&price=" + search_query["price"];
 
 
@@ -49,7 +49,7 @@ function Search() {
                 <div className="home__row">
 
                     {
-                        filteredProducts?.length == 0 ? (
+                        filteredProducts?.length === 0 ? (
                             <p>Sorry we have no products available with {search_query["query"]} keyword</p>
 
                         ) : (
@@ -65,6 +65,7 @@ function Search() {
                                         brand_name={item.brand_name}
                                         stock={item.stock}
                                         image={productImage}
+                                        button_type={button_type}
                                     ></Product>
 
 

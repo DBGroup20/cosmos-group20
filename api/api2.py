@@ -3,8 +3,10 @@ import sqlite3
 import json
 from flask import g
 from flask import jsonify
+from flask import request
 import os
-DATABASE = 'cosmos.db'
+import base64
+DATABASE = 'cosmos3.db'
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -12,7 +14,7 @@ def get_db():
         db = g._database = sqlite3.connect(DATABASE)
     return db
 app =  Flask (__name__)
-conn = sqlite3.connect("cosmos.db")
+conn = sqlite3.connect("cosmos3.db")
 c = conn.cursor()
 c.execute("""
 CREATE TABLE IF NOT EXISTS users (
@@ -22,13 +24,28 @@ CREATE TABLE IF NOT EXISTS users (
 ) ;""")
 print("done creating users")
 conn.commit()
+
+c.execute("""
+CREATE TABLE IF NOT EXISTS admin (
+  admin_id text PRIMARY KEY,
+	user_id text,
+    name text  not null,
+    email text DEFAULT '' not null,
+    role text DEFAULT '' not null,
+    contact_no text DEFAULT '' not null,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+) ;""")
+conn.commit()
+print("done creating admin")
+
+print("creating customers")
 c.execute("""
 CREATE TABLE IF NOT EXISTS customers (
     customer_id text PRIMARY KEY,
 	user_id text,
     name text  not null,
     email text DEFAULT '' not null,
-    address text DEFAULT '' not null,
+    address text DEFAULT '' not null, 
     contact_no text DEFAULT '' not null,
     balance REAL DEFAULT 0.0 not null,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
@@ -38,7 +55,7 @@ print("done creating customers")
 
 
 c.execute("""CREATE TABLE IF NOT EXISTS brand (
-brand_id int PRIMARY KEY,
+brand_id int PRIMARY KEY ,
 name text DEFAULT '' not null
 );""")
 conn.commit()
@@ -46,7 +63,7 @@ print("done creating brand")
 
 c.execute("""
 CREATE TABLE IF NOT EXISTS product (
-    product_id int  PRIMARY KEY,
+    product_id int PRIMARY KEY,
 	  brand_id int,
 	  name text DEFAULT '' not null,
     stock int DEFAULT 0 not null,
@@ -76,6 +93,7 @@ c.execute( """
     customer_id text not null,
     cart_id int not null,
     product_id int not null,
+    quantity int not null,
     status text DEFAULT 'processing' not null,
     created datetime ,
     status_modified datetime ,
@@ -90,36 +108,21 @@ c.execute( """
 conn.commit()
 
 print("done creating orders")
-c.execute("""
-CREATE TABLE IF NOT EXISTS retailers (
-  retailer_id int  PRIMARY KEY,
-	brand_id int,
-  contact_no text DEFAULT '' not null,
-  name text DEFAULT '' not null
-    );
-""")
-conn.commit()
-print("done creating retailers")
-c.execute("""
-CREATE TABLE IF NOT EXISTS location (
-  location_id int PRIMARY KEY,
-  inventory_id int ,
-  address text DEFAULT '' not null,
-  FOREIGN KEY (inventory_id) REFERENCES inventory(inventory_id)
-    );
-""")
-conn.commit()
-print("done creating location")
+
+
 c.execute("""
 CREATE TABLE IF NOT EXISTS inventory (
-    inventory_id int  PRIMARY KEY,
-	location_id int,
-  retailer_id int,
-  FOREIGN KEY (location_id) REFERENCES location(location_id),
-    FOREIGN KEY (retailer_id) REFERENCES retailers(retailer_id)
-
+  inventory_id int  PRIMARY KEY ,
+  address text DEFAULT '' not null,
+  contact_no text DEFAULT '' not null,
+  manager text DEFAULT '' not null,
+  brand_id int,
+  FOREIGN KEY (brand_id) REFERENCES brand(brand_id)
     );
 """)
+conn.commit()
+print("done creating inventory")
+
 conn.commit()
 print("done creating inventory")
 c.execute("""
@@ -168,8 +171,8 @@ print("inserted products and brands")
 def hello():
   return "Hello World"
 
-@app.route('/api/signup/username=<string:username>&name=<string:name>&pwd=<string:password>&user_type=<string:user_type>&contact=<string:contact>&address=<string:address>&email=<string:email>&balance=<int:balance>')
-def signup(username,name,password,user_type,contact,address,email,balance):
+@app.route('/api/signup/username=<string:username>&name=<string:name>&pwd=<string:password>&user_type=<string:user_type>&role=<string:role>&contact=<string:contact>&address=<string:address>&email=<string:email>&balance=<int:balance>')
+def signup(username,name,password,user_type,role,contact,address,email,balance):
   conn = get_db()
   c = conn.cursor()
   user_id = username
@@ -193,6 +196,16 @@ def signup(username,name,password,user_type,contact,address,email,balance):
     print(customers)
     print("inserted query 2")
     conn.commit()
+  if user_type == "admin":
+    admin_id = user_id
+    admin_details = (admin_id,user_id,name,email,contact,role)
+    query2 = "INSERT OR REPLACE INTO admin(admin_id,user_id,name,email,contact_no,role) VALUES (?,?,?,?,?,?)" 
+    c.execute(query2,admin_details)
+    conn.commit()
+    c.execute("select * from admin")
+    admins = c.fetchall()
+    print(admins)
+    print("inserted query 2")
   conn.close()
   return "You have registered at our website!"
 
@@ -341,9 +354,9 @@ def place_order(order_id,cart_id,customer_id,product_id,price,quantity,total):
   created = datetime.datetime.now()
   status_modified = datetime.datetime.now()
   status = 'placed'
-  tup = (order_id,cart_id,customer_id,product_id,status,created,status_modified,total)
+  tup = (order_id,cart_id,customer_id,quantity,product_id,status,created,status_modified,total)
   print('place_order',tup)
-  query  = "INSERT OR REPLACE INTO orders(order_id,cart_id,customer_id,product_id,status,created,status_modified,total) VALUES (?,?,?,?,?,?,?,?)"
+  query  = "INSERT OR REPLACE INTO orders(order_id,cart_id,customer_id,quantity,product_id,status,created,status_modified,total) VALUES (?,?,?,?,?,?,?,?,?)"
   c.execute(query,tup)
   conn.commit()
   c.execute("select * from orders")
@@ -354,7 +367,8 @@ def place_order(order_id,cart_id,customer_id,product_id,price,quantity,total):
   print("order placed")
   return "order_placed"
 @app.route('/api/payment/balance=<int:balance>&bill=<int:bill>')
-def make_payment(balance,bill):
+def make_payment(balance,bill,order_id,customer_id):
+
   conn = get_db()
   c = conn.cursor()
   if balance > bill:
@@ -362,11 +376,204 @@ def make_payment(balance,bill):
   print("payment made")
   return "payment made"
 
+#/api/products/add/name=vdvdvd&pid=vdvdd&stock=0vddvd&brand=vdvdv&price=vddvdv
+# base64.b64encode(file.read()))
+@app.route("/api/orders/uid=<string:user_id>")
+def user_view_order_details(user_id):
+  conn = get_db()
+  c=conn.cursor()
+  query1="select * from orders where customer_id=?"
+  c.execute(query1,(user_id,))
+  orders = c.fetchall()
+  conn.commit()
+  conn.close()
+  print("users_orders:", orders)
+  order_details = json.dumps(orders)
+  return order_details
 
+@app.route('/api/products/add/name=<string:name>&pid=<int:pid>&bname=<string:brand_name>&bid=<int:bid>&stock=<int:stock>&price=<int:price>', methods = ['POST'])
+def admin_add_product(name,pid,brand_name,bid,stock,price):
+  f = request.files['file']
+  print("file uploaded is:",f)
+  conn = get_db()
+  c=conn.cursor()
+  query = "INSERT OR REPLACE INTO brand(name,brand_id) values(?,?)"
+  c.execute(query,(brand_name,bid))
+  conn.commit()
+  query = "SELECT brand_id FROM brand WHERE name = ?"
+  c.execute(query,(brand_name,))
+  brand_id = c.fetchall()
+  conn.commit()
+  #print(brand_id[0][0])
+  query1="INSERT OR REPLACE INTO product(product_id,brand_id,name,stock,price) values(?,?,?,?,?)"
+  c.execute(query1,(pid,bid,name,stock,price,))
+  conn.commit()
+  query = "select * from product"
+  c.execute(query)
+  products = c.fetchall()
+  conn.commit()
+  print("admin added and all products are",products) 
+  conn.close()
 
+  return jsonify(msg="product_added")
+@app.route('/api/products/update/name=<string:name>&brand=<string:brand>&new_price=<float:new_price>')
+def admin_update_price(name,brand,new_price):
+  conn = get_db()
+  c=conn.cursor()
+  query = "SELECT brand_id FROM brand WHERE name = ?"
+  c.execute(query,(brand,))
+  brand_id = c.fetchall()
+  conn.commit()
+  #print(brand_id[0][0])
+  query1="UPDATE product SET price= ? WHERE brand_id=? AND name=?"
+  c.execute(query1,(new_price,brand_id[0][0],name,))
+  conn.commit()
+  conn.close()
+  return 'added'
+@app.route('/api/order/update/status=<string:status>&order_id=<int:order_id>')
+def admin_update_status(status,order_id):
+  conn = get_db()
+  c=conn.cursor()
+  query1="UPDATE orders SET status= ? WHERE order_id=? "
+  c.execute(query1,(status,order_id))
+  conn.commit()
+  conn.close()
+  updated = {"mesg": "updated"}
+  updated = json.dumps(updated)
+  return updated
+@app.route('/api/products/delete/pname=<string:pname>&pid=<string:pid>')
+def admin_delete_product(pid,pname):
+  conn = get_db()
+  c=conn.cursor()
+  c.execute("select * from product")
+  users = c.fetchall()
+  conn.commit()
+  print(len(users))
+  print(users)
+  # query = "SELECT brand_id FROM brand WHERE name = ?"
+  # c.execute(query,(brand,))
+  # brand_id = c.fetchall()
+  # print(brand_id[0][0])
+  conn.commit()
+  query1="DELETE FROM product WHERE product_id = ? AND name = ?;"
+  c.execute(query1,(pid,pname))
+  conn.commit()
+  c.execute("select * from product")
+  users = c.fetchall()
+  conn.commit()
+  print(len(users))
+  print(users)
+  conn.close()
+  return jsonify(msg="product_deleted") 
+@app.route('/api/addretailer/name=<string:name>&brand=<string:brand>&contact_no=<string:contact_no>')
+def admin_retailer(name):
+  conn = get_db()
+  c=conn.cursor()
+  #insert retailer
+  
+  query1="INSERT OR REPLACE INTO brand(name) values(?)"
+  c.execute(query1,(name,))
+  conn.commit()
 
+  conn.close()
 
+  return 'added retailer'  
 
+@app.route('/api/addwarehouse/address=<string:adress>&manager=<string:manager>&contact_no=<string:contact_no>&brand=<string:brand>')
+#address,contact_no,manager,brand_id,
+def admin_add_warehouse(address,contact_no,manager,brand):
+  conn = get_db()
+  c=conn.cursor()
+  query = "SELECT brand_id FROM brand WHERE name = ?"
+  c.execute(query,(brand,))
+  brand_id = c.fetchall()
+  brand_id=brand_id[0][0]
 
+  conn.commit()
+  query1="INSERT OR REPLACE INTO inventory(address,contact_no,manager,brand_id) values(?,?,?,?)"
+  c.execute(query1,(address,contact_no,manager,brand_id,))
+
+  conn.commit()
+  query1="select * from invertory"
+  c.execute(query1)
+  x=c.fetchall()
+  print(x)
+  #insert location
+  #insert inventory
+  conn.close()
+
+  return 'added warehouse'  
+  
+
+@app.route('/api/brand/add/name=<string:name>')
+def admin_add_brand(name):
+  conn = get_db()
+  c=conn.cursor()
+  #print(brand_id[0][0])
+  query1="INSERT OR REPLACE INTO brand(name) values(?)"
+  c.execute(query1,(name,))
+  conn.commit()
+  conn.close()
+
+  return 'added brand'
+@app.route('/api/viewstatus/')
+def admin_view_status():
+  conn = get_db()
+  c=conn.cursor()
+  #print(brand_id[0][0])
+  query1="select order_id, status from orders"
+  c.execute(query1)
+  orders = c.fetchall()
+  print("AdminOrder",orders)
+  conn.commit()
+  products=[]
+  for order in orders:
+    product = {"order_id": order[0],"status":order[1]}
+    products.append(product)   
+  all_products = json.dumps(products)    
+  print("All products by name ",all_products)
+  
+  conn.close()
+  
+  return all_products
+# i think you need to create a new function..this one is to view order details..ok
+# yes i am waiting for mishal to join meeting
+@app.route('/api/vieworderdetails/order_id=<int:order_id>')
+def admin_view_order_details(order_id):
+  conn = get_db()
+  c=conn.cursor()
+  query1="select * from orders where order_id=?"
+  c.execute(query1,(order_id,))
+  details = c.fetchall()
+  print("order_details",details)
+  order_id = details[0][0]
+  user_id = details[0][1]
+  cart_id = details[0][2]
+  quantity = details[0][4]
+  product_id = details[0][3]
+  status = details[0][5]
+  total = details[0][-1]
+
+ 
+  conn.commit()
+  query2 ="select * from product where product_id = ?"
+  c.execute(query2,(product_id,))
+  row = c.fetchone()
+  print("order_product",row)
+
+  
+
+  brand_id = row[1]
+  query3 = "select * from brand where brand_id = ?"
+  c.execute(query3,(brand_id,))
+  brand_details = c.fetchone()
+  brand_name = brand_details[1]
+  product_details = {"order_id":order_id,"user_id":user_id,"cart_id":cart_id,"product_id": product_id,"brand_id":row[1],"brand_name":brand_name,"name":row[2],"stock":row[3],"price":row[4],"image":row[5],"quantity":quantity,"status": status,"total":total}  
+  print('product_details:',product_details)
+  conn.commit()
+  conn.close()
+  details = json.dumps(product_details)
+  # details = json.dumps(details)
+  return details
 if __name__=="__main__":
   app.run(debug=True)
