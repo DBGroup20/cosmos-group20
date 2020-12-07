@@ -346,6 +346,20 @@ def add2cart(cart_id,customer_id,product_id,price,quantity):
   conn.close()
   print("added to cart")
   return "added to cart"
+@app.route('/api/order/get-id')
+def get_order_id():
+  conn = get_db()
+  c = conn.cursor()
+  query = "SELECT * FROM orders ORDER BY order_id DESC LIMIT 1;"
+  c.execute(query)
+  orders = c.fetchone()
+  conn.commit()
+  print("order_id")
+  conn.close()
+  order_id = orders[0] + 1
+  order_details = json.dumps(order_id)
+  return order_details
+
 @app.route('/api/place_order/order_id=<int:order_id>&cart_id=<int:cart_id>&cid=<string:customer_id>&pid=<int:product_id>&price=<int:price>&quantity=<int:quantity>&total=<int:total>')
 def place_order(order_id,cart_id,customer_id,product_id,price,quantity,total):
   conn = get_db()

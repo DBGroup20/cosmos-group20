@@ -32,7 +32,16 @@ function Order() {
             product_price.push(item.price);
             product_quantity.push(item.quantity);
             cart_ids.push(i);
-            const orderAPI = "/api/place_order/order_id=" + order_id.toString() + "&cart_id=" + i.toString() + "&cid=" + user.username + "&pid=" + item.id + "&price=" + item.price + "&quantity=" + item.quantity + "&total=" + total.toString();
+            var fetchedOrderID = 0;
+            const orderIDAPI = "/api/order/get-id"
+            fetch(orderIDAPI)
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("order_id", data);
+                    fetchedOrderID = data;
+                })
+
+            const orderAPI = "/api/place_order/order_id=" + fetchedOrderID.toString() + "&cart_id=" + i.toString() + "&cid=" + user.username + "&pid=" + item.id + "&price=" + item.price + "&quantity=" + item.quantity + "&total=" + total.toString();
             console.log(orderAPI);
             fetch(orderAPI)
                 .then((response) => response)
