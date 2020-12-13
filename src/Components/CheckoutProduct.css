@@ -1,0 +1,14 @@
+.checkoutProduct__image{
+            display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        max-height: 400px;
+        margin: 10px;
+        min-width: 100px;
+        background-color: white;
+        z-index: 1;
+        padding: 20px;
+        width: 100%;
+      
+}

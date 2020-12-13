@@ -1,0 +1,10 @@
+
+Gunicorn==20.0.4
+Babel==2.7.0
+Flask==1.1.1
+Flask-Babel==0.12.2
+Jinja2==2.10.3
+Flask-Cors==3.0.9
+lxml==4.4.2
+MarkupSafe==1.1.1
+Werkzeug==0.16.0
